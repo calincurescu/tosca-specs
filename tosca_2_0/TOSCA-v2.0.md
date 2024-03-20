@@ -646,7 +646,7 @@ A resolver performs the following functions
       to be initialized will be initialized. 
 - In the end all requirements are satisfied and all relationsjips are added to the
   representation graph.
-    - An unsatisfied mandatory requirement results in an error.
+    - An unsatisfied non-optional requirement results in an error.
 
 ##### Substitution Mapping
 - When substitution is directed for a node, the resolver creates a new representation
