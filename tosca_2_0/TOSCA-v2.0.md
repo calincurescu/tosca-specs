@@ -617,19 +617,36 @@ TOSCA Processor contains the following functional blocks:
 
 A resolver performs the following functions
 
-##### Creating Service Representations
+##### Creating ~~Service~~ Node Representations
 
-- Applies service inputs.
-- Converts normalized node templates to node representations (one-to-one
-  equivalency *\[cardinality?\]*) *\[a full TOSCA orchestrator can
-  manage these instead of the external orchestrator/platform\]*
-- Calls intrinsic functions (on demand for all the above) using the
-  graph of node representations.
+- Converts normalized node templates to node representations.
+    - Either one-to-one or one-to-many if multiplcity is involved.
+    - Node templates with a "select" directive create a node in the
+      local representation graph that is a reference to the selected
+      node (from the local or a remote representation graph).
+    - Node templates with a "substitute" directive create a node in
+      the local representation graph that is associated to a remote
+      representation graph created from the substitution template.
+- Detemines the values of the node properties and attributes
+    - From inputs
+    - By applying intrinsic functions (e.g. get_property, etc.)
+    - Some property and attribute values cannot be initialized since
+      they either depend on other uninitialized properties or attributes
+      or need to access other node representations via relationships that
+      have not been yet initialized.
 
-##### Requirement Fulfillment
+##### Creating ~~Requirement Fulfillment~~ Relationships connecting Node Representations
 
-- Satisfies all requirements and creates the relationship graph (an
-  unsatisfied requirement results in an error)
+- Relationships are created by Requirement Fulfillment
+    - If a requirement uses a node_filter that refers to uninitalized properties
+      or attributes, then the fulfillment of this requirement is postponed until
+      all referred properties or attributes are initialized.
+    - A circular dependency signifies a erroneous template and shall report an error
+    - After a relationship is created, properties and attributes that depend on it
+      to be initialized will be initialized. 
+- In the end all requirements are satisfied and all relationsjips are added to the
+  representation graph.
+    - An unsatisfied mandatory requirement results in an error.
 
 ##### Substitution Mapping
 
