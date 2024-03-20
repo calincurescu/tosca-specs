@@ -649,6 +649,13 @@ A resolver performs the following functions
     - An unsatisfied mandatory requirement results in an error.
 
 ##### Substitution Mapping
+- When substitution is directed for a node, the resolver creates a new representation
+  accordingto the substitution template, basically creating a service that is
+  represented by the substituted node.
+- The substitution service is initialized from the properties of the substituted node
+  and the workflows of the substitution service act as operations for the substituted
+  node (that is, the behaviour of the node is substituted by the substitution service).
+    - This is defined via substitution mapping rules.
 
 ### Orchestrator
 
