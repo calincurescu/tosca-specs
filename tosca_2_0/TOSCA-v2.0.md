@@ -672,6 +672,80 @@ An orchestrator performs the following actions:
 - (Optionally) changes the node representations themselves for day 2
   transformations.
 
+#### Changes in the representation graph
+
+During the lifetime of a service there can be several actions or events that 
+change the representation graph of the running service.
+
+We can identify the following situations that mandate the change of the 
+representation graph:
+- Update:
+    - The service inout values have changed and need to be re-evaluated while
+      the service is running.
+- Upgrade:
+    - The service template has chnged and needs to be re-evaluated while the
+      service is running.
+- Runtime failures:
+    - Nodes or relationships in the representation graph have failed and need
+      to be recreated while the service is running.
+- Change in dependencies
+    - External nodes or relationships to external nodes have failed and new
+      relationships to external nodes neeed to be created (i.e. external
+      requirements need to be fulfilled again) while the service is running.
+      
+For the service to reach the new desired runtime state, operations that are 
+associated with the creation, deletion, and modification of
+nodes and relationships in the representation graph need to be performed.
+
+We can visualize (and the orchsstrator can perfom) these restorative actions
+via graph traversals on the "old" and "new" representation graph.
+
+First let's categorize the nodes and relationships in the "old" and "new"
+representation graphs in the following four categories:
+- Unchanged: These are nodes and relationships that appear in both the
+  "old" and "new" representation graphs and have the same property values.
+  Given that a template can be upgrades, we correlate the same nodes and
+  relationships via thier symbolic node names and requirement names.
+- Modified: These are nodes and relationships that appear in both the
+  "old" and "new" representation graphs and have different property values.
+- Obsolete: These are nodes and relationships that appear in the "old"
+  representation graph but not in the "new" representation graph.
+- Novel: These are nodes and relationships that do not appear in the "old"
+  representation graph but appear in the "new" representation graph.
+
+##### An example of graph-traversal changes performed with changes in the representation graph
+
+For example we start by traversing the "old" representation graph in 
+reverse dependency order:
+- we start in parallel with all nodes that have no incoming dependency relationship
+    - we perform operations associated with deleting on all adjacent relationships
+      to this node that are in the "obsolete" category.
+    - we perform operations associated with deleting on the node itself if it is
+      in the "obsolete" category.
+    - we move to nodes that have no incoming dependency relationship to nodes that
+      have not been processed yet.
+
+After we have processed the deletion of the obsolete elements we traverse the "new" 
+representation graph in dependency order to preform the mofdifications and creations:
+- we start in parallel with the noded that have no outgoing dependency relationship
+    - we perform operations associated with creation resp. modification on the node itself
+      if it is in the "novel" resp. "modified" category
+    - we perform operations associated with creation resp. modification on all adjacent
+      relationships in the "novel" resp. "modified" category if the node on the other
+      side of the relationship has been processed.
+    - we move to nodes that have no outgoing dependency relationship to nodes that
+      have not been processed yet.
+
+After this we can considere the service to be in the new desiredruntime state, and the
+"old" representation graph can be discared and the "new" representation graph becomes
+the current representation graph of the service.
+
+Note that this graph traversal behaviour should be associated with the relevant
+interface types that are defined in a TOSCA profile, where it shuold be specified 
+which relationship types form the dependcy relationioships, which opearation(s)
+are associated with the deletion, modification, and creation of the nodes and 
+relationships when the representation graph changes. 
+
 -------
 
 # TOSCA Metamodel
