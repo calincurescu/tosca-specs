@@ -678,7 +678,7 @@ During the lifetime of a service there can be several actions or events that
 change the representation graph of the running service.
 
 We can identify the following situations that mandate the change of the 
-representation graph:
+representation graph, for example:
 - Update:
     - The service inout values have changed and need to be re-evaluated while
       the service is running.
